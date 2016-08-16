@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using PinMeTo.Net.Models;
 
 namespace PinMeTo.Net
 {
@@ -67,18 +68,18 @@ namespace PinMeTo.Net
             }
         }
 
-        public async Task<string> AddLocation(ILocationData location)
+        public async Task<HttpResponseMessage> AddLocation(ILocationData location)
         {
             return await DoRequest(location, HttpMethod.Post, _appUrl);
         }
 
-        public async Task<string> UpdateLocation(ILocationData location, string locationId)
+        public async Task<HttpResponseMessage> UpdateLocation(ILocationData location, string locationId)
         {
             location.StoreId = null;
             return await DoRequest(location, HttpMethod.Put, _appUrl + locationId);
         }
 
-        private async Task<string> DoRequest(ILocationData location, 
+        private async Task<HttpResponseMessage> DoRequest(ILocationData location, 
             HttpMethod httpMethod, string requestUri)
         {
             var json = JsonConvert.SerializeObject(location, new JsonSerializerSettings
@@ -95,8 +96,7 @@ namespace PinMeTo.Net
                     .Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var request = new HttpRequestMessage(httpMethod, requestUri);
                 request.Content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await client.SendAsync(request);
-                return await response.Content.ReadAsStringAsync();
+                return await client.SendAsync(request);
             }
         }
     }
