@@ -31,7 +31,7 @@ ILocationData location = _pinMeToService.GetLocation<LocationData>("1234");
 ``` 
 <appSettings>
     <add key="PinMeToAppSecret" value="" />  
-    <add key="PinMeToAppId" />  
+    <add key="PinMeToAppId" value="" />  
     <add key="PinMeToAppUrl" value="" />  
     <add key="PinMeToApiUrl" value="https://api.pinmeto.com/" />  
 </appSettings>
