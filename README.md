@@ -3,14 +3,13 @@ A .net client framework for PinMeTo
 
 Add locations:
 ```c#
-            ILocationData locationData = new LocationData()
-            {
-               StoreId = "12345",
-               Name = "Ye old mechanical keyboard store",              
-               // ... And a lot more properties
-
-            };
-            var addReponse = _pinMeToService.AddLocation(locationData);
+ILocationData locationData = new LocationData()
+{
+   StoreId = "12345",
+   Name = "Ye old mechanical keyboard store",              
+   // ... And a lot more properties
+};
+var addReponse = _pinMeToService.AddLocation(locationData);
 ```
 
 Update locations:
@@ -23,7 +22,7 @@ var updateReponse = _pinMeToService.UpdateLocation(locationData);
 Retrieve locations:
 
 ```c#
-var location = _pinMeToService.GetLocation<LocationData>("1234");
+ILocationData location = _pinMeToService.GetLocation<LocationData>("1234");
 
 ```
 
