@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -16,17 +17,20 @@ namespace PinMeTo.Net
         private readonly string _appUrl;
         private readonly string _baseUrl;
         private readonly string _token;
+        private readonly string _proxyUrl;
 
-        public PinMeToService(string appId, string appSecret, string appUrl, string baseUrl)
+        public PinMeToService(string appId, string appSecret, string appUrl, string baseUrl, string proxyUrl)
         {
             _baseUrl = baseUrl;
             _appUrl = string.Format("v1/{0}/locations/", appUrl);
-            _token = GetToken(appId, appSecret).Result;
+            _proxyUrl = proxyUrl;
+            _token = GetToken(appId, appSecret).Result;      
         }
 
         public PinMeToService()
         {
             _baseUrl = ConfigurationManager.AppSettings["PinMeToApiUrl"]; ;
+            _proxyUrl = ConfigurationManager.AppSettings["PinMeToProxyUrl"]; ;
             var appSecret = ConfigurationManager.AppSettings["PinMeToAppSecret"];
             var appId = ConfigurationManager.AppSettings["PinMeToAppId"];
             _appUrl = string.Format("v1/{0}/locations/", ConfigurationManager.AppSettings["PinMeToAppUrl"]);
@@ -36,7 +40,7 @@ namespace PinMeTo.Net
         public async Task<string> GetToken(string appId, string appSecret)
         {
             string authUrl = string.Format("{0}{1}", _baseUrl, "oauth/token");
-            using (var client = new HttpClient())
+            using (var client = GetHttpClient())
             {
                 var request = new HttpRequestMessage(HttpMethod.Post, authUrl);
                 request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -54,7 +58,7 @@ namespace PinMeTo.Net
 
         public async Task<ILocationData> GetLocation<T>(string locationId) where T : ILocationData
         {
-            using (var client = new HttpClient())
+            using (var client = GetHttpClient())
             {
                 client.BaseAddress = new Uri(_baseUrl);
                 var request = new HttpRequestMessage(HttpMethod.Get, _appUrl + locationId + "?access_token=" + _token);
@@ -86,8 +90,8 @@ namespace PinMeTo.Net
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
                 NullValueHandling = NullValueHandling.Ignore
             });
-            using (var client = new HttpClient())
-            {
+            using (var client = GetHttpClient())
+            {                
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
                 client.BaseAddress = new Uri(_baseUrl);
                 client.DefaultRequestHeaders
@@ -97,6 +101,20 @@ namespace PinMeTo.Net
                 request.Content = new StringContent(json, Encoding.UTF8, "application/json");
                 return await client.SendAsync(request);
             }
+        }
+
+        private HttpClient GetHttpClient()
+        {
+            if (!string.IsNullOrEmpty(_proxyUrl))
+            {
+                var httpClientHandler = new HttpClientHandler
+                {
+                    Proxy = new WebProxy(_proxyUrl, false),
+                    UseProxy = true
+                };
+                return new HttpClient(httpClientHandler);
+            }
+            return new HttpClient();
         }
     }
 }
