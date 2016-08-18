@@ -31,7 +31,7 @@ namespace PinMeTo.Net
     public class Contact
     {
         public string Phone { get; set; }
-        public string HomePage { get; set; }
+        public string Homepage { get; set; }
         public string Email { get; set; }
     }
 
