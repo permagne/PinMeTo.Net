@@ -25,7 +25,7 @@ namespace PinMeTo.Net
     public class ShoppingCenter
     {
         public string Name { get; set; }
-        public string HomePage { get; set; }
+        public string Homepage { get; set; }
     }
 
     public class Contact
